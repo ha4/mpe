@@ -1,4 +1,4 @@
-filepath="../../model-kossel/";
+filepath="../mpe-kossel/";
 
 ///
 //    prototypes
@@ -7,10 +7,10 @@ module e3dv5()
 {
   translate([0,0,1]) // anycubic kossel mount 7->9mm effector correction
   rotate([0,0,180-52])
-translate([0,0,69.7]) // size
+//translate([0,0,69.7]) // size
   translate([0,0,51.7-1.7]) // anycubic kossel mount
   rotate([90,0,90]) translate([4,-64.2,0])
-    import(file=str(filepath,"E3Dv5.STL"));
+    import(file=str(filepath,"../E3Dv5.STL"));
 }
 //translate([0,0,-18.7]) #cube([5,5,18.7]);
 
@@ -42,7 +42,7 @@ module e3dv6b()
     translate([0,0,-14.65]) rotate([90,0,90])
         import(file=str(filepath,"E3D_V6_1.75mm_Universal_HotEnd_Mockup.STL"));
 }
-e3dv5();
+e3dv6();
 
 //#e3dv6_space();
 module

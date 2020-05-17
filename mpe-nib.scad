@@ -22,12 +22,12 @@ module mountplate()
     for(i=[bpos,-bpos]) translate([0,i,0]) b();
 }
 
-module prism(l, w, h) {
+module prism(x, y, z) {
        polyhedron(points=[
-               [0,0,h],           // 0    front top corner
-               [0,0,0],[w,0,0],   // 1, 2 front left & right bottom corners
-               [0,l,h],           // 3    back top corner
-               [0,l,0],[w,l,0]    // 4, 5 back left & right bottom corners
+               [0,0,z],           // 0    front top corner
+               [0,0,0],[x,0,0],   // 1, 2 front left & right bottom corners
+               [0,y,z],           // 3    back top corner
+               [0,y,0],[x,y,0]    // 4, 5 back left & right bottom corners
        ], faces=[ // points for all faces must be ordered clockwise when looking in
                [0,2,1],    // top face
                [3,4,5],    // base face
@@ -37,30 +37,35 @@ module prism(l, w, h) {
        ]);
 }
 
-module vprism(l,w,h) {
+//vprism(4,25,11);
+
+module vprism(mx,my,z) {
     rotate([90,0,180])
-    translate([0,0,-h]) prism(l,w,h);
+    translate([0,0,-my]) prism(mx,z,my);
 }
 
-                        
+
+bearing();
 module bearing(d1=dbearings,d2=5.0,h=5)
 {
-    teeth=10;
-    extruder=.4;
-    perimeters=5;
-    difference() {
-        cylinder(d=d1,h=h,$fn=60);
-        translate([0,0,-1])cylinder(d=d2,h=h+2,$fn=90);
-        for(t = [0 : teeth - 1])
-            rotate([0, 0, 360 / teeth * t]) {
-                translate([d1/8,0,-1]) 
-                    vprism(h+2, extruder * perimeters, d1 / 2);
-            }
-    }
-    difference() {
+    e=.45; // extrusion width
+    wall=e*2;
+    teeth=11;
+    root=e*3; // teeth root
+    rin=d2/2;
+    teethcenter=rin/1.4;
+    module outer() difference() {
         cylinder(d=d1,h=h,$fn=60);
         translate([0,0,-1])cylinder(r=d1/2-.4*3,h=h+2,$fn=40);
     }
+    module teeths() difference() {
+        union() for(t = [0:360/teeth:359])
+            rotate([0, 0, t]) translate([teethcenter,0,0]) 
+                    vprism(root, d1/2-wall, h);
+        translate([0,0,-1])cylinder(d=d2,h=h+2,$fn=90);
+    }
+    outer();
+    teeths();
 }
 
 module bearings()
@@ -113,8 +118,8 @@ module support(htotal=30,hmnt=5)
     
 }
 
-bearing();
+//bearing();
 //rotate([0,0,360/12]*-2)mountplate();
 //for(i=bolts) translate(i) cylinder(d=5,h=20,$fn=22);
 //bearings();
-///support();
+//support();
