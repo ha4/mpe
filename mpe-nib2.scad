@@ -78,7 +78,7 @@ $fn=10;
 multisupport()
     servbicurve(curvepts(pts1),curvepts(pts3))
         sphere(d=1);
-#servbipoints(pts1,pts3);
+//#servbipoints(pts1,pts3);
 function drills(n=12,d=30)=[for(j=[0:360/n:359]) sincos(j)*d/2 ];
 
 difference() {
