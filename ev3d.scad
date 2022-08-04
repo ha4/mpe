@@ -1,4 +1,6 @@
-filepath="../mpe-kossel/";
+//filepath="../mpe-kossel/";
+filepath="../../model-kossel/";
+
 
 ///
 //    prototypes
@@ -10,7 +12,7 @@ module e3dv5()
 //translate([0,0,69.7]) // size
   translate([0,0,51.7-1.7]) // anycubic kossel mount
   rotate([90,0,90]) translate([4,-64.2,0])
-    import(file=str(filepath,"../E3Dv5.STL"));
+    import(file=str(filepath,"E3Dv5.STL"));
 }
 //translate([0,0,-18.7]) #cube([5,5,18.7]);
 
@@ -23,8 +25,8 @@ module e3dv6()
  // translate([0,0,2.2])  // kossel offset
   rotate([0,0,-45+4]) translate([0,0,34.7]) 
     {
-//            e3dv6a();
-            e3dv6b();
+            e3dv6a();
+//            e3dv6b();
 //        translate([0,-8.,-45.6])
         translate([0,-8.+1,-45.6])
         rotate([0,90,0]) cylinder(d=6.1,h=22,center=true,$fn=60);
@@ -35,16 +37,14 @@ module e3dv6()
 module e3dv6a()
 {
     translate([0,0,7+3]) rotate([180,0,0]) // ring mount correction
-        import(file=str(filepath,"E3D_V6.STL"));
+        import(file=str(filepath,"E3Dv6.STL"));
 }
 module e3dv6b()
 {
     translate([0,0,-14.65]) rotate([90,0,90])
         import(file=str(filepath,"E3D_V6_1.75mm_Universal_HotEnd_Mockup.STL"));
 }
-e3dv6();
 
-//#e3dv6_space();
 module
 e3dv6_space()
 {
@@ -57,3 +57,8 @@ e3dv6_space()
         }
     }
 }
+
+e3dv5();
+e3dv6a();
+//e3dv6b();
+//#e3dv6_space();

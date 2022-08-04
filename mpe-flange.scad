@@ -73,3 +73,5 @@ TubeFlange(wall=1.5, aflange=30, szflange=33, fanoffs=0, fanmnt=25, fanbolt=3.2,
         ///translate([0,-70,0])cube([140,140,140]);
     }
 }
+
+TubeFlange();

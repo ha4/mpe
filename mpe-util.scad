@@ -40,13 +40,17 @@ function rott(v)=[-v.y,v.x]; // rotate 90, cw
 function rotc(v)=[v.y,-v.x]; // rotate -90, ccw
 function cprod(v1,v2,v3,v23)=let(v3q=v3*v3, v2q=v2*v2, v1yq=v1.y*v1.y,v1xq=v1.x*v1.x)
     -v23.x*v1xq - (v3q-v2q)*v1.x - (v2q-v1yq)*v3.x + (v3q-v1yq)*v2.x;
-function center3p(p1,p2,p3) = let(p23=p2-p3,
+function center3p0(p1,p2,p3) = let(p23=p2-p3,
     p_1=rott(p1), p_2=rott(p2), p_3=rott(p3), p_23=rott(p23),
     cf=2*p23*p_1 + 2*p3*p_2)
     [ cprod(p_1,p_2,p_3,p_23), cprod(p1,p2,p3,p23) ] / cf;
 
-//circle3test([0,3],[2.7,2],[0,-1]);
-//circle3test([-1,3.5],[-0.7,2.8],[-1.1,2.2]);
+function d2(r1,r2) = r1[0]*r2[1] - r1[1]*r2[0];
+function center3p(a,b,c) = let(v2=b-a, v3=c-a, vq=[v2*v2,v3*v3])
+    a+[d2(vq,[v2.y,v3.y]), d2([v2.x,v3.x],vq)] / d2(v2,v3) / 2;
+
+circle3test([0,3],[2.7,2],[0,-1],$fn=50);
+circle3test([-1,3.5],[-0.7,2.8],[-1.1,2.2],$fn=50);
 
 module
 circle3test(p1,p2,p3)

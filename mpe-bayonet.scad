@@ -11,7 +11,7 @@ function abayonet(sz=91,tol=0.7,lock=41,astop=4,ofs=24) =
   ofs+sz+tol*2];   // 6   91    spring fixation
 
 //rotate([0,0,-21])
-springlock($fn=64);
+//springlock($fn=64);
 //springbase($fn=64,dtension=0);
 //rotate([0,0,41])
 //#bayonetpath($fn=64);
@@ -27,7 +27,7 @@ intersection() {
 function center2pr(p1,p2,r) = let(c1=(p1+p2)/2, c=p2-p1, n=[c.y,-c.x], 
 		nn=norm(n), h=nn/2, y=r<h?0:sqrt(r*r-h*h), ofs=nn==0?[0,0]:y/nn*n) c1-ofs;
 
-//circle2rtest([-1,3.5],[-1.7,-2.8],20);
+///circle2rtest([-1,3.5],[-1.7,-2.8],20,$fn=60);
 module
 circle2rtest(p1,p2,r)
 {

@@ -1,7 +1,7 @@
 
 $fn=48;
-//filepath="../../model-kossel/multipurpose-effector/";
-filepath="../mpe-kossel/";
+filepath="../../model-kossel/multipurpose-effector/";
+//filepath="../mpe-kossel/";
 //filepath="./";
 use <ev3d.scad>
 use <mpe-original.scad>
@@ -16,19 +16,20 @@ use <mpe-sens.scad>
 //
 // EXTRUDER
 //
-//translate([0,0,41.6]) e3dv5();
-///#e3dv5();
-///translate([0,0,-4.5])
+//translate([0,0,41.6])
+//e3dv5();
+//#e3dv5();
+//translate([0,0,-4.5])
 //e3dv6();
 
 //
 // MPE original
 //
-//mpe_effector();
+//mpe_effector(filepath);
 //mpe_springring();
 //mpe_fanduct();
 //mpe_insert();
-//mpe_hotendmountasm();
+///mpe_hotendmountasm();
 //mpe_hotendmount1();
 //mpe_hotendmount2();
 //mpe_hotendmount3();
@@ -70,7 +71,7 @@ hbase=7;
 //Effector();
 //rotate([0,0,41])
 //SpringRing(aair=[-90,-45,0,45,90,135,164.5],cabl=[3.5,2.5]);
-//FanDuct(lh=1, cabl=[3.5,2.5], taper1=0.7, taper1air=0.1, wall=1.5/2, dairmax=40.6);
+///FanDuct(lh=1, cabl=[3.5,2.5], taper1=0.7, taper1air=0.1, wall=1.5/2, dairmax=40.6);
 //Insert(cabl=[3.5,2.5],aflange=20,fanoffs=1.5);
 //translate([0,-.5*mount_core+.1,hbase+3.15])
 //TubeFlange(aflange=20,fanoffs=1.5);
@@ -78,7 +79,7 @@ hbase=7;
 ////module offset(h) translate([0,0,(h<0)?h:0]) cube([5,5,abs(h)]);
 //#offset(-19.7-7/2-15.7);
 
-translate([0,0,-9/2]) {
+*translate([0,0,-9/2]) {
 SpringRingBase();
 *Base();
 *InsertBase();
@@ -91,51 +92,52 @@ SpringRingBase();
 
 module bayonets() for(a=blist) rotate([0,0,a]) children();
 
-//jbase(42,9,9,5,5);
+//jbase([42,9,9],5,5);
 module
-jbase(x,y,z,da,h1) // all dimension + tip cone size
+jbase(sz,da,h1) // all dimension + tip cone size
     intersection() {
-        db=sqrt(y*y+z*z)+.05; // face tolerance
-        translate([-x/2,-y/2,0])cube([x,y,z]);
+        db=sqrt(sz.y*sz.y+sz.z*sz.z)+.05; // face tolerance
+        cube(sz,center=true);
         hull() for(i=[0:1]) mirror([i,0,0])
-            translate([-x/2,0,z/2])rotate([0,90,0])
+            translate([-sz.x,0]/2)rotate([0,90])
             cylinder(d1=da,d2=db,h=h1,$fn=36);
     }
 
+//joint();
 module
 joint(radial=40, separation=42, height=9, depth=9,
         end_sz=5, conesize=5, boltdepth=10, nutspace=14, nutcut=8)
     translate([0,radial,0]) difference() {
         // rod holder & support
-        translate([0,0,height/2]) rotate([90,0,0]) union() {
-            translate([0,0,-depth/2]) 
-                jbase(separation,height,depth,end_sz,conesize);
+        rotate([90,0]) union() {
+            sz=[separation,height,depth];
+            jbase(sz,end_sz,conesize);
             linear_extrude(height=radial) projection(cut=true)
-                jbase(separation,height,depth,end_sz,conesize);
+                translate([0,0,-depth/2])jbase(sz,end_sz,conesize);
         }
         // nut & bolt
-        translate([0,0,height/2]) rotate([0,90,0]) {
+        rotate([0,90]) {
             cylinder(d=3.2,h=separation+1,center=true,$fn=36);
             cylinder(d=6.4,h=separation-boltdepth*2,center=true,$fn=6);
         }
         // nut insertion space
-        translate([-separation/2+nutspace,depth/2-nutcut,-1])
-            cube([separation-2*nutspace,depth,height+2]);
+        let(x=separation-2*nutspace)
+         translate(-[x,-depth+2*nutcut,height+2]/2) cube([x,depth,height+2]);
     }
 
 // base modules
 module
-extbase(d0, bh, radial, separation, depth, conesize, extra=1)
+extbase(d0, bh, jradial, jmnt, extra=1)
+// jradial: form center to joint surface jmnt: joint surface width
 {
-    szpole=radial-depth/2;
-    szcntr=d0/2+extra*cos(30);
-    sz=szpole+szcntr;
-    
+    szcntr=d0/2+extra*cos(30); // from center to inter-joint
+    sz=jradial+szcntr; // form joint to oppizite inter-joint
+    joffset=jradial+jmnt/2; // from center to j.trigon vertex
     // effector body
     intersection_for(a=blist) {
-         rotate([0,0,a]) translate([-sz,-szcntr,0])
+         rotate([0,0,a]) translate([-sz,-szcntr,-bh/2])
             cube([sz*2,sz,bh]);
-         rotate([0,0,a]) translate([0,szpole+separation/2-conesize,0])
+         rotate([0,0,a]) translate([0,joffset,-bh/2])
             rotate([0,0,-90-45]) cube([sz*2,sz*2,bh]);
     }
 }
@@ -284,24 +286,25 @@ module
 Effector()
 {
     d0=mount_core+mnt_border*2;
+    hcone=5;
+    L=9;
     difference() {
         union() {
             bayonets()
                 joint(radial=Reff, separation=Rod_separation, height=Heff, 
-                    depth=9, conesize=5);
-            extbase(d0=d0,radial=Reff, bh=Heff, separation=Rod_separation,
-                depth=9,conesize=5);
+                    depth=L, conesize=hcone);
+            extbase(d0=d0,jradial=Reff-L/2, bh=Heff, jmnt=Rod_separation-2*hcone);
             // mount base
-            cylinder(d=d0,h=mnt_height,$fn=72);
+            translate([0,0,-Heff/2]) cylinder(d=d0,h=mnt_height,$fn=72);
         }
         // central mount
-        translate([0,0,-ltol])
-            cylinder(d=mount_core,h=mnt_height+2*ltol,$fn=80);
+        cylinder(d=mount_core,h=mnt_height*3,center=true,$fn=80);
     }
     // bayonet locks
-    bayonets() springlock(d0=mount_core+mnt_border, d1=mnt_pass);
+    translate([0,0,-Heff/2]) bayonets()
+        springlock(d0=mount_core+mnt_border, d1=mnt_pass);
 }
-
+Effector();
 
 
 // mount_core: main diameter   dpath:central pass  lh: ring height
