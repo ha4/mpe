@@ -227,10 +227,10 @@ module bconnect()
 // blower a-part connection
 module aconnect(part=3)
 {
-    sz=40; h=10;
-    mnt=35; dr=5; bh=3.5;
+    sz=40; h=10; // blower size
+    mnt=35; dr=5; bh=3.5; // blower mount, output size, main wall
     slmnt=60; // slot mount distance
-    wall=1;
+    wall=1; // tubing wall and other params
     tube=13.2;
     tex=15.5; trifl=3; // tube grip extend, step
     htube=8;
@@ -240,29 +240,25 @@ module aconnect(part=3)
 
     module base1() {
         // main plate
-        translate([sz,sz]/-2-[0,bh])cube([sz,sz+bh,bh]);
+        translate(-[sz,sz]/2-[0,bh])cube([sz,sz+bh,bh]);
         // slot mounting
         hull() for(x=[-.5,.5]*slmnt) translate([x,0])
             cylinder(d=slmnt-sz,h=bh);
     }
     module base2() {
-        // transition
-        hull() {
+        hull() { // transition tube
             translate([-dsz/2,-sz/2-wall,bh])
             cube([dsz,wall,h]);
             translate([0,-sz/2-wall-sz/4,bh+tube/2])
             rotate([-90,0])
             cylinder(d=tube,h=wall);
         }
-        // vert
-        translate([-sz/2,-sz/2-bh])
+        translate([-sz/2,-sz/2-bh])  // vertical wall
             cube([sz,bh,h+bh]);
-        // out
-        translate([0,-sz/2-sz/4,bh+tube/2])
+        translate([0,-sz/2-sz/4,bh+tube/2]) // output tube
             rotate([90,0])
             cylinder(d=tube,h=htube+wall);
-        // locks
-        translate([0,-sz/2-sz/4,bh+tube/2])
+        translate([0,-sz/2-sz/4,bh+tube/2]) // lock rings
             rotate([90,0])for(z=[trifl,2*trifl])
             translate([0,0,z])
             rotate_extrude(convexity=5) 
@@ -270,51 +266,41 @@ module aconnect(part=3)
                 circle(r=(tex-tube)/4);             
     }
     module holes1() {
-        // enlighteemnt
-        translate([0,0,-1])
+        translate([0,0,-1]) // enlighteemnt
             cylinder(d=sz/1.5,h=bh+2);
-        // blower mount
-        for(x=[-.5,.5]*mnt,y=[-.5,.5]*mnt)
+        for(x=[-.5,.5]*mnt,y=[-.5,.5]*mnt) // blower mount
             translate([x,y,-1])
             cylinder(d=1.5,h=bh+2);
-        // slot mount
-        for(x=[-.5,.5]*slmnt) translate([x,0,-1])
+        for(x=[-.5,.5]*slmnt) translate([x,0,-1]) // slot mount
             cylinder(d=4,h=bh+2);
     }
     module holes2() {
-        // transition
-        hull() {
+        hull() { // transition tube
             translate([-dsz/2+wall,-sz/2-wall,bh+wall])
             cube([dsz-2*wall,wall+1,h-2*wall]);
             translate([0,-sz/2-wall-sz/4-.01,bh+tube/2])
             rotate([-90,0])
             cylinder(d=tube-2*wall,h=wall);
         }        
-        // out
-        translate([0,-sz/2-sz/4,bh+tube/2])
+        translate([0,-sz/2-sz/4,bh+tube/2]) // output
             rotate([90,0])
             cylinder(d=tube-2*wall,h=htube+wall*2);
     }
     module trpz(w,h) let(a=55, w1=w-2*h/tan(a))
         polygon([[-w/2,0],[w/2,0],[w1/2,h],[-w1/2,h],[-w/2,0]]);
-    module lasti() translate([0,-sz/2,-1])
-        rotate([0,0,180])
-        linear_extrude(bh+2) 
-        offset(delta=0.05)trpz(sz/2,bh);
-    module lasto() translate([0,-sz/2,-1])
-        rotate([0,0,180])
-        linear_extrude(bh+1)
-        offset(delta=.05)
-        difference(){
-            translate([-sz/2,0])square([sz,bh]);
+    module dovetail(outer=true,tol=0.1)
+        translate([0,-sz/2,-1]) rotate([0,0,180])
+        linear_extrude(bh+(outer?1:2)) offset(delta=tol/2)
+        difference() {
+            if (outer) translate([-sz/2,0])square([sz,bh]);
             trpz(sz/2,bh);
         }
-    if (part>=2)difference() { base1(); holes1(); lasti(); }
-    if (part%2==1)difference() { base2(); holes2(); lasto(); }
+    if (part>=2)difference() { base1(); holes1();dovetail(outer=false);} 
+    if (part%2==1)difference() { base2(); holes2();dovetail();}
 }
 
 
-module anycubic_assembly()
+module effector_assembly()
 {
 translate([0,0,-18.8-7/2]) // effector offset
     e3d_v5();
@@ -323,19 +309,20 @@ translate([0,0,-18.8-7/2]) // effector offset
         blower4010();
 }
 
-//anycubic_assembly();
-//anycubic_effector();
-//anycubic_effector0();
-//blower4010();
-//%blower4010_box();
-cutx()
-bconnect();
-//translate([0,0,-3.5])
-//aconnect(1);
-//e3d_v5();
-//e3d_v5_0();
-
 module cutx() intersection() {
     children();
     translate([500,0]) cube(1000,center=true);
 }
+
+effector_assembly();
+//anycubic_effector();
+//anycubic_effector0();
+//blower4010();
+//%blower4010_box();
+//cutx()
+//bconnect();
+//translate([0,0,-3.5])
+//aconnect(3);
+//e3d_v5();
+//e3d_v5_0();
+
